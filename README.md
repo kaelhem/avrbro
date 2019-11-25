@@ -5,7 +5,7 @@ _This project is still a work in progress!_
 
 ## What is it?
 
-This library use the Serial Api available in Chrome (_with experimental flag enabled_) to flash compiled .hex files on Arduino boards without Avrdude, directly from a web page.
+This library use the Serial Api available in Chrome (_with experimental flag enabled_) to upload compiled .hex files on Arduino boards without Avrdude, directly from a web page!
 
 ## Contributing
 
