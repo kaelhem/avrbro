@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Avrbro - sample" />
+    <title>Avrbro - Sample</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+    <script type="module">
+      import avrbro from './../../dist/avrbro.m.js'
+
+      // reference to .hex buffer data
+      let hexData;
+
+      document.getElementById('flash-button').addEventListener('click', async () => {
+        const serial = await avrbro.connect();
+        if (serial) {
+          // check boards info here: https://github.com/noopkat/avrgirl-arduino/blob/master/boards.js
+          const board = {
+            name: 'nano',
+            baud: 57600,
+            signature: [0x1E, 0x95, 0x0F],
+            pageSize: 128,
+            numPages: 256,
+            timeout: 400,
+            productId: ['0x6001', '0x7523'],
+            productPage: 'https://web.archive.org/web/20150813095112/https://www.arduino.cc/en/Main/ArduinoBoardNano',
+            protocol: 'stk500v1'
+          }
+          const success = await avrbro.flash(serial, hexData, board);
+          if (success) {
+            console.log('hoorah!');
+          }
+        } else {
+          console.log('Operation canceled by user');
+        }
+      });
+
+      window.addEventListener('load', () => {
+        if (!avrbro.isAvailable()) {
+          document.getElementById('noserial').style.display = 'block';
+          return;
+        } else {
+          document.getElementById('dropzone').style.display = 'block';
+        }
+
+        const myDropzone = new Dropzone("div#dropzone", {
+          url: "#",
+          createImageThumbnails: false,
+          previewTemplate: document.getElementById('dropPreviewTpl').innerHTML
+        });
+        
+        myDropzone.on("addedfile", (file) => {
+          const reader = new FileReader();
+          reader.onload = ({ target }) => {
+            hexData = avrbro.parseHex(new TextDecoder("utf-8").decode(target.result));
+            document.getElementById('actionsButtons').style.display = 'block';
+          }
+          reader.readAsArrayBuffer(file);
+        });
+      });
+
+    </script>
+  </head>
+  <body>
+    <div>This exemple need to be run within an http server.</div>
+    <hr/>
+    <div style="display: none" id="noserial">
+      <p>This exemple is based on the Serial Api. You should use Chrome web browser <b>and</b> activate this option:</p>
+      <code>chrome://flags/#enable-experimental-web-platform-features</code>
+      <p style="font-style: italic">copy/paste this in a new tab to active the Serial Api.</p>
+    </div>
+    <div style="display: none" id="dropPreviewTpl">
+      <div><span data-dz-name></span> (<span data-dz-size></span>)</div>
+    </div>
+    <div id="dropzone" style="display: none; background: #ccc; height: 100px; width: 100%">DROP .hex FILE HERE (or click to browse)</div>
+    <div id="actionsButtons" style="display: none">
+      <button id="flash-button">flash .hex on board</button>
+    </div>
+  </body>
+</html>

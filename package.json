@@ -1,0 +1,23 @@
+{
+  "name": "avrbro",
+  "version": "0.0.1",
+  "description": "A tool to upload .hex files to arduino with Serial API",
+  "author": "kaelhem",
+  "license": "MIT",
+  "source": "src/index.js",
+  "main": "dist/avrbro.js",
+  "umd:main": "dist/avrbro.umd.js",
+  "unpkg": "dist/avrbro.umd.js",
+  "module": "dist/avrbro.m.js",
+  "scripts": {
+    "build": "rimraf dist && microbundle --external all",
+    "dev": "microbundle watch"
+  },
+  "devDependencies": {
+    "microbundle": "^0.12.0-next.6",
+    "rimraf": "^3.0.0"
+  },
+  "dependencies": {
+    "buffer": "^5.4.3"
+  }
+}
