@@ -17,16 +17,16 @@ yarn add avrbro
 ## Exemple
 
 ```js
-import { parseHex, connect, flash } from 'avrbro'
+import { parseHex, openSerial, flash } from 'avrbro'
 
 const flashMyBoard = async () => {
-  // get .hex buffer
-  const response = await fetch('bin/my-firmware.hex')
-  const data = await response.json()
-  const hexBuffer = parseHex(new TextDecoder("utf-8").decode(buffer))
   // connect to device using web serial API
-  const serial = await connect()
+  const serial = await openSerial()
   if (serial) {
+    // get .hex buffer
+    const response = await fetch('bin/my-firmware.hex')
+    const data = await response.json()
+    const hexBuffer = parseHex(new TextDecoder("utf-8").decode(buffer))
     // upload .hex file
     const success = await flash(serial, hexBuffer, { boardName: 'nano' })
     if (success) {
@@ -50,7 +50,7 @@ Allow to know if the serial API is available.
 
 ---
 
-####connect(options)
+####openSerial(options)
 
 Open serial connection with device. _Once called, the browser will open a dedicated modal window to choose the device._
 

@@ -20,7 +20,7 @@ const parseHex = (buffer) => {
 /**
 * Open the connection with the serial port
 */
-const connect = async (options = {}) => {
+const openSerial = async (options = {}) => {
   const { 
     baudrate = 57600,
     vendorId = 0x2341
@@ -84,7 +84,7 @@ const flash = async (serial, hexData, options) => {
 
 export default {
   isAvailable,
-  connect,
+  openSerial,
   parseHex,
   flash,
   boardsHelper

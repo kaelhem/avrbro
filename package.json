@@ -1,6 +1,6 @@
 {
   "name": "avrbro",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A tool to upload .hex files to arduino with Serial API",
   "author": "kaelhem",
   "license": "MIT",
