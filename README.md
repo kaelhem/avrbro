@@ -42,7 +42,7 @@ flashMyBoard()
 
 ## Api
 
-####isAvailable()
+#### isAvailable()
 
 Allow to know if the serial API is available.
 
@@ -50,7 +50,7 @@ Allow to know if the serial API is available.
 
 ---
 
-####connect(options)
+#### connect(options)
 
 Open serial connection with device. _Once called, the browser will open a dedicated modal window to choose the device._
 
@@ -64,7 +64,7 @@ Open serial connection with device. _Once called, the browser will open a dedica
 
 ---
 
-####parseHex(data)
+#### parseHex(data)
 
 Use Intel HEX file format to parse given data and prepare buffer for upload.
 
@@ -76,7 +76,7 @@ Use Intel HEX file format to parse given data and prepare buffer for upload.
 
 ---
 
-####flash(serial, hexBuffer, options)
+#### flash(serial, hexBuffer, options)
 
 Flash the device connected on the given serial port with the given .hex file buffer.
 
