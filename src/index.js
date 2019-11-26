@@ -1,8 +1,9 @@
+import * as boardsHelper from './boards'
 import { parseIntelHex } from './hex-parser'
 import { bootload } from './stk500v1/stk500'
 
 /**
-* Checks if the serial api is avalaible
+* Checks if the serial api is available
 * As november 2019 it works only in Chrome with this flag enabled:
 *   chrome://flags/#enable-experimental-web-platform-features
 */
@@ -60,11 +61,19 @@ const flash = async (serial, hexData, options) => {
   if (!options) {
     throw new Error(`I need options to do this!`)
   }
-  const { debug } = options
+  const { debug, boardName, ...boardOptions } = options
+  let props = { debug, ...boardOptions }
   debug && console.log(`will flash .hex file on board...`)
+  if (boardName) {
+    const board = boardsHelper.getBoard(boardName)
+    props = { ...props, ...board }
+  }
+  if (!props.name) {
+    throw new Error('Cannot find board name!')
+  }
   try {
     await reset(serial)
-    const flashResult = await bootload(serial, hexData, options)
+    const flashResult = await bootload(serial, hexData, props)
     debug && console.log(`flash complete successfully`)
     return flashResult
   } catch (err) {
@@ -77,5 +86,6 @@ export default {
   isAvailable,
   connect,
   parseHex,
-  flash
+  flash,
+  boardsHelper
 }

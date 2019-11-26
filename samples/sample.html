@@ -10,25 +10,18 @@
     <script type="module">
       import avrbro from './../../dist/avrbro.m.js'
 
-      // reference to .hex buffer data
-      let hexData;
+      // reference to .hex buffer
+      let hexBuffer;
 
       document.getElementById('flash-button').addEventListener('click', async () => {
         const serial = await avrbro.connect();
         if (serial) {
-          // check boards info here: https://github.com/noopkat/avrgirl-arduino/blob/master/boards.js
-          const board = {
-            name: 'nano',
-            baud: 57600,
-            signature: [0x1E, 0x95, 0x0F],
-            pageSize: 128,
-            numPages: 256,
-            timeout: 400,
-            productId: ['0x6001', '0x7523'],
-            productPage: 'https://web.archive.org/web/20150813095112/https://www.arduino.cc/en/Main/ArduinoBoardNano',
-            protocol: 'stk500v1'
+          // avalaible boards are listed in https://github.com/kaelhem/avrbro/tree/master/src/boards.js
+          const options = {
+            boardName: 'nano',
+            debug: true
           }
-          const success = await avrbro.flash(serial, hexData, board);
+          const success = await avrbro.flash(serial, hexBuffer, options);
           if (success) {
             console.log('.hex file uploaded on board successfully!');
           }
@@ -54,7 +47,7 @@
         myDropzone.on("addedfile", (file) => {
           const reader = new FileReader();
           reader.onload = ({ target }) => {
-            hexData = avrbro.parseHex(new TextDecoder("utf-8").decode(target.result));
+            hexBuffer = avrbro.parseHex(new TextDecoder("utf-8").decode(target.result));
             document.getElementById('actionsButtons').style.display = 'block';
           }
           reader.readAsArrayBuffer(file);
