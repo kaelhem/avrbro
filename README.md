@@ -17,7 +17,8 @@ yarn add avrbro
 ## Exemple
 
 ```js
-import { parseHex, openSerial, flash } from 'avrbro'
+import avrbro from 'avrbro'
+const { parseHex, openSerial, flash } = avrbro
 
 const flashMyBoard = async () => {
   // connect to device using web serial API
