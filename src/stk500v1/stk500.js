@@ -176,8 +176,8 @@ const loadPage = async (serial, writeBytes, {timeout, debug}) => {
   }
 }
 
-const upload = async (serial, hex, pageSize, options) => {
-  const {timeout, debug} = options
+const upload = async (serial, hex, options) => {
+  const {timeout, debug, pageSize} = options
 
   debug && console.log('program')
   let pageaddr = 0
@@ -219,8 +219,8 @@ const exitProgrammingMode = async (serial, {timeout, debug}) => {
   }
 }
 
-const verify = async (serial, hex, pageSize, options) => {
-  const {timeout, debug} = options
+const verify = async (serial, hex, options) => {
+  const {timeout, debug, pageSize} = options
 
   debug && console.log('verify')
   let pageaddr = 0
@@ -233,7 +233,7 @@ const verify = async (serial, hex, pageSize, options) => {
       useaddr = pageaddr >> 1
       await loadAddress(serial, useaddr, options)
       writeBytes = hex.slice(pageaddr, (hex.length > pageSize ? (pageaddr + pageSize) : hex.length - 1))
-      await verifyPage(serial, writeBytes, pageSize, options)
+      await verifyPage(serial, writeBytes, options)
       debug && console.log('verified page')
       pageaddr =  pageaddr + writeBytes.length
       await new Promise((resolve) => setTimeout(resolve, 4))
@@ -246,7 +246,9 @@ const verify = async (serial, hex, pageSize, options) => {
   return true
 }
 
-const verifyPage = async (serial, writeBytes, pageSize, {timeout, debug}) => {
+const verifyPage = async (serial, writeBytes, options) => {
+  const {pageSize, timeout, debug} = options
+  
   debug && console.log('verify page')
   const match = Buffer.concat([
     Buffer.from([Statics.Resp_STK_INSYNC]),
@@ -288,8 +290,8 @@ export const bootload = async (serial, hex, opt) => {
     await verifySignature(serial, sign, opt)
     await setOptions(serial, parameters, opt)
     await enterProgrammingMode(serial, opt)
-    await upload(serial, hex, opt.pageSize, opt)
-    await verify(serial, hex, opt.pageSize, opt)
+    await upload(serial, hex, opt)
+    await verify(serial, hex, opt)
     await exitProgrammingMode(serial, opt)
   } catch (err) {
     throw err
