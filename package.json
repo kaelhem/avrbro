@@ -1,6 +1,6 @@
 {
   "name": "avrbro",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A tool to upload .hex files to arduino with Serial API",
   "author": "kaelhem",
   "license": "MIT",
@@ -19,5 +19,12 @@
   },
   "dependencies": {
     "buffer": "^5.4.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaelhem/avrbro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kaelhem/avrbro/issues"
   }
 }
