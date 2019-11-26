@@ -13,23 +13,26 @@ const isAvailable = () => navigator && navigator.serial
 */
 const parseHex = (buffer) => {
   const hex = parseIntelHex(buffer).data
-  console.log(hex)
   return hex
 }
 
 /**
 * Open the connection with the serial port
 */
-const connect = async () => {
+const connect = async (options = {}) => {
+  const { 
+    baudrate = 57600,
+    vendorId = 0x2341
+  } = options
   // Filter on devices with the Arduino USB vendor ID. Not yet implemented...
   const requestOptions = {
-    filters: [{ vendorId: 0x2341 }]
+    filters: [{ vendorId }]
   }
 
   // Request an Arduino from the user.
   try {
     const port = await navigator.serial.requestPort(requestOptions)
-    await port.open({ baudrate: 57600 })
+    await port.open({ baudrate })
     const reader = port.readable.getReader()
     const writer = port.writable.getWriter()
     return {port, reader, writer}
@@ -53,15 +56,19 @@ const reset = async (serial) => {
 * Flash the device connected on the given serial port with the given .hex file buffer.
 * Only works with stk500 version 1 for now...
 */
-const flash = async (serial, hexData, board) => {
-  console.log('will flash .hex file on board...')
+const flash = async (serial, hexData, options) => {
+  if (!options) {
+    throw new Error(`I need options to do this!`)
+  }
+  const { debug } = options
+  debug && console.log(`will flash .hex file on board...`)
   try {
     await reset(serial)
-    const flashResult = await bootload(serial, hexData, board)
-    console.log('flash complete successfully')
+    const flashResult = await bootload(serial, hexData, options)
+    debug && console.log(`flash complete successfully`)
     return flashResult
   } catch (err) {
-    console.log('encountered errors during flash :(')
+    debug && console.log(`encountered errors during flash :(`)
     throw err
   }
 }

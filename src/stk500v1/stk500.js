@@ -3,8 +3,8 @@ import { bufferEqual } from '../utils'
 import { sendCommand } from './stk500-io'
 import Statics from './constants'
 
-export const sync = async (serial, attempts, timeout) => {
-  console.log('sync')
+export const sync = async (serial, attempts, {timeout, debug}) => {
+  debug && console.log('sync')
 
   const opt = {
     cmd: [Statics.Cmnd_STK_GET_SYNC],
@@ -18,20 +18,20 @@ export const sync = async (serial, attempts, timeout) => {
     tries += 1
     try {
       const result = await sendCommand(serial, opt)
-      console.log('sync complete', result, tries)
+      debug && console.log('sync complete', result, tries)
       return result
     } catch (err) {
       console.log(err)
     }
     if (tries <= attempts) {
-      console.log(`failed! will try again (${tries})`)
+      debug && console.log(`failed! will try again (${tries})`)
     }
   }
   throw new Error(`Sync failed after ${attempts} attempts`)
 }
 
-const verifySignature = async (serial, signature, timeout) => {
-  console.log("verify signature")
+const verifySignature = async (serial, signature, {timeout, debug}) => {
+  debug && console.log('verify signature')
 
   const match = Buffer.concat([
     Buffer.from([Statics.Resp_STK_INSYNC]),
@@ -47,9 +47,9 @@ const verifySignature = async (serial, signature, timeout) => {
   try {
     const data = await sendCommand(serial, opt)
     if (data) {
-      console.log('confirm signature', data, data.toString('hex'))
+      debug && console.log('confirm signature', data, data.toString('hex'))
     } else {
-      console.log('confirm signature', 'no data')
+      debug && console.log('confirm signature', 'no data')
     }
     return data
   } catch (err) {
@@ -57,8 +57,9 @@ const verifySignature = async (serial, signature, timeout) => {
   }
 }
 
-const getSignature = async (serial, timeout) => {
-  console.log("get signature")
+const getSignature = async (serial, {timeout, debug}) => {
+  debug && console.log('get signature')
+
   const opt = {
     cmd: [Statics.Cmnd_STK_READ_SIGN],
     responseLength: 5,
@@ -66,15 +67,15 @@ const getSignature = async (serial, timeout) => {
   }
   try {
     const data = await sendCommand(serial, opt)
-    console.log('getSignature', data)
+    debug && console.log('getSignature', data)
     return data
   } catch (err) {
     throw err
   }
 }
 
-const setOptions = async (serial, options, timeout) => {
-  console.log("set device")  
+const setOptions = async (serial, options, {timeout, debug}) => {
+  debug && console.log('set device')  
   const opt = {
     cmd: [
       Statics.Cmnd_STK_SET_DEVICE,
@@ -104,15 +105,15 @@ const setOptions = async (serial, options, timeout) => {
   }
   try {
     const data = await sendCommand(serial, opt)
-    console.log('setOptions', data)
+    debug && console.log('setOptions', data)
     return data
   } catch (err) {
     throw err
   }
 }
 
-const enterProgrammingMode = async (serial, timeout) => {
-  console.log("send enter programming mode")
+const enterProgrammingMode = async (serial, {timeout, debug}) => {
+  debug && console.log('send enter programming mode')
   const opt = {
     cmd: [Statics.Cmnd_STK_ENTER_PROGMODE],
     responseData: Statics.OK_RESPONSE,
@@ -120,15 +121,15 @@ const enterProgrammingMode = async (serial, timeout) => {
   }
   try {
     const data = await sendCommand(serial, opt)
-    console.log("sent enter programming mode", data)
+    debug && console.log('sent enter programming mode', data)
     return data
   } catch (err) {
     throw err
   }
 }
 
-const loadAddress = async (serial, useaddr, timeout) => {
-  console.log("load address")
+const loadAddress = async (serial, useaddr, {timeout, debug}) => {
+  debug && console.log('load address')
   const addr_low = useaddr & 0xff
   const addr_high = (useaddr >> 8) & 0xff
   const opt = {
@@ -142,15 +143,15 @@ const loadAddress = async (serial, useaddr, timeout) => {
   }
   try {
     const data = await sendCommand(serial, opt)
-    console.log('loaded address', data)
+    debug && console.log('loaded address', data)
     return data
   } catch (err) {
     throw err
   }
 }
 
-const loadPage = async (serial, writeBytes, timeout) => {
-  console.log("load page")
+const loadPage = async (serial, writeBytes, {timeout, debug}) => {
+  debug && console.log('load page')
   const bytes_low = writeBytes.length & 0xff
   const bytes_high = writeBytes.length >> 8
 
@@ -168,42 +169,42 @@ const loadPage = async (serial, writeBytes, timeout) => {
 
   try {
     const data = await sendCommand(serial, opt)
-    console.log('loaded page', data)
+    debug && console.log('loaded page', data)
     return data
   } catch (err) {
     throw err
   }
 }
 
-const upload = async (serial, hex, pageSize, timeout) => {
-  console.log("program")
+const upload = async (serial, hex, pageSize, options) => {
+  const {timeout, debug} = options
+
+  debug && console.log('program')
   let pageaddr = 0
   let writeBytes
   let useaddr
 
   try {
     while (pageaddr < hex.length) {
-      console.log("program page")
+      debug && console.log('program page')
       useaddr = pageaddr >> 1
-      await loadAddress(serial, useaddr, timeout)
+      await loadAddress(serial, useaddr, options)
       writeBytes = hex.slice(pageaddr, (hex.length > pageSize ? (pageaddr + pageSize) : hex.length - 1))
-      await loadPage(serial, writeBytes, timeout)
-      console.log("programmed page")
+      await loadPage(serial, writeBytes, options)
+      debug && console.log('programmed page')
       pageaddr =  pageaddr + writeBytes.length
-      await new Promise((resolve) => {
-        setTimeout(() => resolve("done!"), 4)
-      })
-      console.log("page done")
+      await new Promise((resolve) => setTimeout(resolve, 4))
+      debug && console.log('page done')
     }   
   } catch (err) {
     throw err
   }
-  console.log("upload done")
+  debug && console.log('upload done')
   return true
 }
 
-const exitProgrammingMode = async (serial, timeout) => {
-  console.log("send leave programming mode")
+const exitProgrammingMode = async (serial, {timeout, debug}) => {
+  debug && console.log('send leave programming mode')
   const opt = {
     cmd: [Statics.Cmnd_STK_LEAVE_PROGMODE],
     responseData: Statics.OK_RESPONSE,
@@ -211,42 +212,42 @@ const exitProgrammingMode = async (serial, timeout) => {
   }
   try {
     const data = await sendCommand(serial, opt)
-    console.log('sent leave programming mode', data)
+    debug && console.log('sent leave programming mode', data)
     return data
   } catch (err) {
     throw err
   }
 }
 
-const verify = async (serial, hex, pageSize, timeout) => {
-  console.log("verify")
+const verify = async (serial, hex, pageSize, options) => {
+  const {timeout, debug} = options
+
+  debug && console.log('verify')
   let pageaddr = 0
   let writeBytes
   let useaddr
 
   try {
     while (pageaddr < hex.length) {
-      console.log("verify page")
+      debug && console.log('verify page')
       useaddr = pageaddr >> 1
-      await loadAddress(serial, useaddr, timeout)
+      await loadAddress(serial, useaddr, options)
       writeBytes = hex.slice(pageaddr, (hex.length > pageSize ? (pageaddr + pageSize) : hex.length - 1))
-      await verifyPage(serial, writeBytes, pageSize, timeout)
-      console.log("verified page")
+      await verifyPage(serial, writeBytes, pageSize, options)
+      debug && console.log('verified page')
       pageaddr =  pageaddr + writeBytes.length
-      await new Promise((resolve) => {
-        setTimeout(() => resolve("done!"), 4)
-      })
-      console.log("page done")
+      await new Promise((resolve) => setTimeout(resolve, 4))
+      debug && console.log('page done')
     }   
   } catch (err) {
     throw err
   }
-  console.log("verify done")
+  debug && console.log('verify done')
   return true
 }
 
-const verifyPage = async (serial, writeBytes, pageSize, timeout) => {
-  console.log("verify page")
+const verifyPage = async (serial, writeBytes, pageSize, {timeout, debug}) => {
+  debug && console.log('verify page')
   const match = Buffer.concat([
     Buffer.from([Statics.Resp_STK_INSYNC]),
     writeBytes,
@@ -265,7 +266,7 @@ const verifyPage = async (serial, writeBytes, pageSize, timeout) => {
   }
   try {
     const data = await sendCommand(serial, opt)
-    console.log('confirm page', data, data.toString('hex'))
+    debug && console.log('confirm page', data, data.toString('hex'))
     return data
   } catch (err) {
     throw err
@@ -280,16 +281,16 @@ export const bootload = async (serial, hex, opt) => {
 
   try {
     // send two dummy syncs like avrdude does
-    await sync(serial, 3, opt.timeout)
-    await sync(serial, 3, opt.timeout)
-    await sync(serial, 3, opt.timeout)
+    await sync(serial, 3, opt)
+    await sync(serial, 3, opt)
+    await sync(serial, 3, opt)
     const sign = Buffer.from(opt.signature)
-    await verifySignature(serial, sign, opt.timeout)
-    await setOptions(serial, parameters, opt.timeout)
-    await enterProgrammingMode(serial, opt.timeout)
-    await upload(serial, hex, opt.pageSize, opt.timeout)
-    await verify(serial, hex, opt.pageSize, opt.timeout)
-    await exitProgrammingMode(serial, opt.timeout)
+    await verifySignature(serial, sign, opt)
+    await setOptions(serial, parameters, opt)
+    await enterProgrammingMode(serial, opt)
+    await upload(serial, hex, opt.pageSize, opt)
+    await verify(serial, hex, opt.pageSize, opt)
+    await exitProgrammingMode(serial, opt)
   } catch (err) {
     throw err
   }

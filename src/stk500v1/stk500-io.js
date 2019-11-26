@@ -2,7 +2,7 @@ import { Buffer } from '../../node_modules/buffer'
 import { bufferEqual } from '../utils'
 import Statics from './constants'
 
-export const receiveData = async ({ reader }, timeout, responseLength) => {
+export const receiveData = async (reader, timeout, responseLength) => {
   const startingBytes = [Statics.Resp_STK_INSYNC]
   
   let buffer = Buffer.alloc(0)
@@ -20,7 +20,6 @@ export const receiveData = async ({ reader }, timeout, responseLength) => {
   }
 
   const handleChunk = (data) => {
-    console.log('chunk handled: ', data, new TextDecoder("utf-8").decode(data))
     let index = 0
     while (!started && index < data.length) {
       const byte = data[index]
@@ -34,7 +33,7 @@ export const receiveData = async ({ reader }, timeout, responseLength) => {
       buffer = Buffer.concat([buffer, data])
     }
     if (buffer.length > responseLength) {
-      finished(new Error('buffer overflow '+buffer.length+' > '+responseLength))
+      finished(new Error(`buffer overflow ${buffer.length} > ${responseLength}`))
     } else if (buffer.length == responseLength) {
       finished()
     }
@@ -43,7 +42,7 @@ export const receiveData = async ({ reader }, timeout, responseLength) => {
   if (timeout && timeout > 0) {
     timeoutId = setTimeout(() => {
       timeoutId = null
-      finished(new Error('receiveData timeout after ' + timeout + 'ms'))
+      finished(new Error(`receiveData timeout after ${timeout}ms`))
     }, timeout)
   }
 
@@ -57,7 +56,7 @@ export const receiveData = async ({ reader }, timeout, responseLength) => {
         }
         handleChunk(value)
       } catch (err) {
-        console.log(err)
+        throw err
       }
     }
     if (error) {
@@ -65,15 +64,14 @@ export const receiveData = async ({ reader }, timeout, responseLength) => {
     }
     return buffer
   } else {
-    throw new Error('serial port not found')
+    throw new Error(`serial port not found`)
   }
 }
 
 export const sendCommand = async ({ reader, writer }, opt) => {
-  let timeout = opt.timeout || 0;
+  const timeout = opt.timeout || 0
   let responseData = null
   let responseLength = 0
-  let error
 
   if (opt.responseData && opt.responseData.length > 0) {
     responseData = opt.responseData
@@ -90,23 +88,20 @@ export const sendCommand = async ({ reader, writer }, opt) => {
   }
   if (reader && writer) {
     try {
-      console.log('will write: ', cmd)
       writer.write(cmd)
     } catch(err) {
-      throw new Error('Sending ' + cmd.toString('hex') + ': ' + err.message)
+      throw new Error(`Sending ${cmd.toString('hex')} : {err.message}`)
     }
-    
-    console.log('wait response. length should be:' + responseLength)
     try {
-      const data = await receiveData({ reader }, timeout, responseLength)
+      const data = await receiveData(reader, timeout, responseLength)
       if (responseData && !bufferEqual(data, responseData)) {
-        throw new Error(cmd + ' response mismatch: ' + data.toString('hex') + ', ' + responseData.toString('hex'))
+        throw new Error(`${cmd} response mismatch: ${data.toString('hex')}, ${responseData.toString('hex')}`)
       }
       return data
     } catch (err) {
-      throw new Error('Sending ' + cmd.toString('hex') + ': ' + err.message)
+      throw new Error(`Sending ${cmd.toString('hex')}: ${err.message}`)
     }
   } else {
-    throw new Error('serial port not found')
+    throw new Error(`serial port not found`)
   }
 }
