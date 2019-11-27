@@ -61,8 +61,22 @@ Open serial connection with device. _Once called, the browser will open a dedica
   - baudrate `Number` - defaults to `57600`
   - vendorId `Number` - defaults to `0x2341`
 
-**Returns**: `Serial` or `null` if cancelled
+**Returns**: `Object` or `null` if cancelled. The `Object` will match `{port, reader, writer}` where:
+  - port `SerialPort`
+  - reader `ReadableStream`
+  - writer `WritableStream`
 
+---
+#### closeSerial(serial)
+
+Close serial connection with device.
+
+**Params**
+
+- serial `object`
+  - port `SerialPort`
+  - reader `ReadableStream`
+  - writer `WritableStream`
 ---
 
 #### parseHex(data)

@@ -44,6 +44,15 @@ const openSerial = async (options = {}) => {
 }
 
 /**
+* Close the connection with the serial port
+*/
+const closeSerial = async ({port, reader, writer}) => {
+  writer.releaseLock()
+  reader.releaseLock()
+  await port.close()
+}
+
+/**
 * Reset board with cycle DTR
 */
 const reset = async (serial) => {
@@ -82,10 +91,13 @@ const flash = async (serial, hexData, options) => {
   }
 }
 
-export default {
+const avrbro = {
   isAvailable,
   openSerial,
+  closeSerial,
   parseHex,
   flash,
   boardsHelper
 }
+
+export default avrbro
