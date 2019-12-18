@@ -48,6 +48,7 @@
           const reader = new FileReader();
           reader.onload = ({ target }) => {
             hexBuffer = avrbro.parseHex(new TextDecoder("utf-8").decode(target.result));
+            console.log(hexBuffer)
             document.getElementById('actionsButtons').style.display = 'block';
           }
           reader.readAsArrayBuffer(file);

@@ -97,6 +97,7 @@ const avrbro = {
   closeSerial,
   parseHex,
   flash,
+  reset,
   boardsHelper
 }
 
