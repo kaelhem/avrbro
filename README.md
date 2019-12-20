@@ -43,13 +43,15 @@ const flashMyBoard = async () => {
     const fileData = await readFileAsync(data)
     const hexBuffer = parseHex(new TextDecoder("utf-8").decode(fileData))
     
-	// reset the board
-	await reset(serial)
+    // reset the board
+    await reset(serial)
     
     // upload .hex file
     const success = await flash(serial, hexBuffer, { boardName: 'nano' })
     if (success) {
       console.log('.hex file uploaded on board successfully!')
+    } else {
+      console.log('an error has occurred :(')
     }
   } else {
     console.log('operation canceled by user')
