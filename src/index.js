@@ -21,19 +21,15 @@ const parseHex = (buffer) => {
 * Open the connection with the serial port
 */
 const openSerial = async (options = {}) => {
-  const { 
-    baudrate = 57600,
-    vendorId = 0x2341
+  const {
+    baudRate = 57600
   } = options
-  // Filter on devices with the Arduino USB vendor ID. Not yet implemented...
-  const requestOptions = {
-    filters: [{ vendorId }]
-  }
 
-  // Request an Arduino from the user.
+  // Request an Arduino from the user without any filtering since this is more
+  // flexible alowing for clones to work too.
   try {
-    const port = await navigator.serial.requestPort(requestOptions)
-    await port.open({ baudrate })
+    const port = await navigator.serial.requestPort()
+    await port.open({ baudRate })
     const reader = port.readable.getReader()
     const writer = port.writable.getWriter()
     return {port, reader, writer}
@@ -52,14 +48,18 @@ const closeSerial = async ({port, reader, writer}) => {
   await port.close()
 }
 
+const wait = (duration) => {
+  return new Promise((resolve) => setTimeout(resolve, duration))
+}
+
 /**
 * Reset board with cycle DTR
 */
 const reset = async (serial) => {
-  serial.port.setSignals({ rts: true, dtr: true })
-  await new Promise(resolve => setTimeout(resolve, 250))
-  serial.port.setSignals({ rts: false, dtr: false })
-  await new Promise(resolve => setTimeout(resolve, 50))
+  serial.port.setSignals({ requestToSend: true, dataTerminalReady: true })
+  await wait(250)
+  serial.port.setSignals({ requestToSend: false, dataTerminalReady: false })
+  await wait(50)
 }
 
 /**
