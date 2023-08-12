@@ -78,8 +78,12 @@ Open serial connection with device. _Once called, the browser will open a dedica
 **Params**
 
 - options `object`
-  - baudrate `Number` - defaults to `57600`
-  - vendorId `Number` - defaults to `0x2341`
+  - baudrate `Number` - defaults to `57600` (which is ok for nano boards with old bootloader. You can check [here](https://github.com/kaelhem/avrbro/blob/master/src/boards.js) to find the correct baudRate for yours...
+  - filters `Array` - a list of objects containing vendor and product IDs used to search for attached devices. Filters contain the following values:
+    - usbVendorId `String` - an unsigned short integer that identifies a USB device vendor.
+    - usbProductId `String` - an unsigned short integer that identifies a USB device.
+
+
 
 **Returns**: `Object` or `null` if cancelled. The `Object` will match `{port, reader, writer}` where:
   - port `SerialPort`
@@ -141,7 +145,7 @@ Reset board with cycle DTR.
 
 ## Contributing
 
-Contributions in any form are welcome! If you find a bug, please [file an issue.](https://github.com/kaelhem/memoprout/issues)
+Contributions in any form are welcome! If you find a bug, please [file an issue.](https://github.com/kaelhem/avrbro/issues)
 
 ## License
 
