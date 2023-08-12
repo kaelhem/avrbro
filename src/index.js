@@ -22,13 +22,18 @@ const parseHex = (buffer) => {
 */
 const openSerial = async (options = {}) => {
   const {
-    baudRate = 57600
+    baudRate = 57600,
+    filters = null
   } = options
 
-  // Request an Arduino from the user without any filtering since this is more
-  // flexible alowing for clones to work too.
+  // Request an Arduino from the user.
   try {
-    const port = await navigator.serial.requestPort()
+    let port
+    if (filters) {
+      port = await navigator.serial.requestPort(filters)
+    } else {
+      port = await navigator.serial.requestPort()
+    }
     await port.open({ baudRate })
     const reader = port.readable.getReader()
     const writer = port.writable.getWriter()
