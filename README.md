@@ -78,7 +78,7 @@ Open serial connection with device. _Once called, the browser will open a dedica
 **Params**
 
 - options `object`
-  - baudrate `Number` - defaults to `57600` (*which is ok for nano boards with old bootloader. You can check [here](https://github.com/kaelhem/avrbro/blob/master/src/boards.js) to find the correct baudRate for yours...*)
+  - baudRate `Number` - defaults to `57600` (*which is ok for nano boards with old bootloader. You can check [here](https://github.com/kaelhem/avrbro/blob/master/src/boards.js) to find the correct baudRate for yours...*)
   - filters `Array` - a list of objects containing vendor and product IDs used to search for attached devices. Filters contain the following values:
     - usbVendorId `String` - an unsigned short integer that identifies a USB device vendor.
     - usbProductId `String` - an unsigned short integer that identifies a USB device.
