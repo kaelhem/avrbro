@@ -2,7 +2,7 @@
 
 This library use the [Serial Api](https://wicg.github.io/serial/) available in Chrome (_with experimental flag enabled_) to upload compiled .hex files on Arduino boards without Avrdude, directly from a web page!
 
-> For the moment it works only with stk500v1 protocol. That means it (_should_) works with _Uno_ and _Nano_ boards, but not with _Leonardo_ or _Mega_ boards).
+> For the moment it works only with stk500v1 protocol. That means it (_should_) works with _Uno_ and _Nano_ boards, but not with _Leonardo_ or _Mega_ boards). An implementation of stk500v2 protocol seems to live [here](https://github.com/Pinoccio/js-stk500)...
 
 ## Install
 
