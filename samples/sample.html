@@ -30,6 +30,7 @@
           if (success) {
             console.log('.hex file uploaded on board successfully!');
           }
+          avrbro.closeSerial(serial);
         } else {
           console.log('Operation canceled by user');
         }
